@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Notebooks — Hub da Sala</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💻</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#f4f7f5;
+  --card:#ffffff;
+  --text:#20251f;
+  --muted:#737a73;
+  --green:#24372E;
+  --green-light:#dfe9e3;
+  --orange:#E2542B;
+  --orange-light:#fbe3da;
+  --border:#e6ebe7;
+  --danger:#b3261e;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{
+  font-family:"Inter",sans-serif;
+  background:
+    radial-gradient(circle at 10% 0%, #e7f0ea 0, transparent 30%),
+    radial-gradient(circle at 100% 20%, #fce7de 0, transparent 28%),
+    var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  padding-bottom:calc(30px + var(--safe-bottom));
+}
+button{font-family:inherit}
+:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+
+/* ---------- topo ---------- */
+header{
+  padding:calc(24px + var(--safe-top)) 22px 26px;
+  background:var(--green);
+  color:#fff;
+  border-radius:0 0 30px 30px;
+}
+.header-content{max-width:520px;margin:auto}
+.back{
+  display:inline-flex;align-items:center;gap:6px;
+  color:#cbd5ce;text-decoration:none;
+  font-size:.8rem;font-weight:600;
+  padding:7px 12px 7px 10px;
+  background:rgba(255,255,255,.1);
+  border-radius:999px;
+}
+header h1{
+  font-family:"Baloo 2",sans-serif;
+  font-size:2rem;line-height:1;
+  margin:24px 0 6px;font-weight:800;
+}
+header p{margin:0;color:#cbd5ce;font-size:.88rem}
+
+main{max-width:520px;margin:auto;padding:24px 20px 0}
+
+h2{
+  font-family:"Baloo 2",sans-serif;
+  font-size:1.1rem;margin:0 0 4px;
+}
+.hint{margin:0 0 14px;color:var(--muted);font-size:.82rem}
+
+.aviso{
+  margin-bottom:18px;padding:12px 14px;
+  border-radius:14px;font-size:.82rem;font-weight:500;
+  background:var(--orange-light);color:#7a2a12;
+}
+.aviso[hidden]{display:none}
+
+/* ---------- lista de nomes ---------- */
+.names{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;
+  margin:0;padding:0;list-style:none;
+}
+.name-btn{
+  width:100%;min-height:56px;
+  padding:10px 14px;
+  border:1px solid var(--border);
+  border-radius:16px;
+  background:rgba(255,255,255,.9);
+  color:var(--text);
+  text-align:left;cursor:pointer;
+  display:flex;flex-direction:column;justify-content:center;gap:1px;
+  font-size:.92rem;font-weight:700;
+  transition:transform .12s ease,border-color .12s ease;
+}
+.name-btn:hover{border-color:#c9d3cc}
+.name-btn:active{transform:scale(.97)}
+.name-btn small{font-size:.68rem;font-weight:600;color:var(--muted)}
+.name-btn.pediu{
+  background:var(--green-light);
+  border-color:#c3d4c9;
+}
+.name-btn.pediu small{color:var(--green)}
+
+/* ---------- pedidos de hoje ---------- */
+.today{margin-top:32px}
+.today-head{display:flex;justify-content:space-between;align-items:baseline}
+.today-head span{color:var(--muted);font-size:.75rem;font-weight:600}
+.orders{margin:10px 0 0;padding:0;list-style:none;display:grid;gap:8px}
+.order{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 14px;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:16px;
+}
+.order .pos{
+  width:30px;height:30px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:50%;
+  background:var(--orange-light);color:var(--orange);
+  font-family:"Baloo 2",sans-serif;font-weight:800;font-size:.9rem;
+}
+.order .who{flex:1;font-weight:700;font-size:.92rem}
+.order .when{color:var(--muted);font-size:.78rem;font-weight:600}
+.order .st{
+  font-size:.68rem;font-weight:700;
+  padding:3px 8px;border-radius:999px;
+  background:#eef0ed;color:#5f665f;
+}
+.empty{
+  padding:22px 16px;text-align:center;
+  border:1px dashed #cfd8d2;border-radius:16px;
+  color:var(--muted);font-size:.85rem;
+}
+
+/* ---------- confirmação (dialog) ---------- */
+dialog{
+  border:0;padding:0;
+  width:min(440px,100%);
+  max-width:100%;
+  margin:auto auto 0;
+  border-radius:26px 26px 0 0;
+  background:#fff;color:var(--text);
+  box-shadow:0 -10px 40px rgba(0,0,0,.18);
+}
+dialog::backdrop{background:rgba(20,30,24,.5)}
+dialog[open]{animation:sheet .22s ease}
+@keyframes sheet{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+@media(min-width:600px){
+  dialog{margin:auto;border-radius:26px}
+}
+.sheet{padding:24px 22px calc(22px + var(--safe-bottom))}
+.sheet h3{
+  font-family:"Baloo 2",sans-serif;
+  font-size:1.35rem;margin:0 0 4px;
+}
+.sheet p{margin:0 0 16px;color:var(--muted);font-size:.86rem}
+label{display:block;font-size:.8rem;font-weight:700;margin-bottom:6px}
+input[type=password]{
+  width:100%;height:52px;
+  padding:0 16px;
+  border:2px solid var(--border);
+  border-radius:14px;
+  font-size:1.1rem;font-family:inherit;
+  background:#fafcfb;
+}
+input[type=password]:focus{outline:none;border-color:var(--green)}
+.error{
+  min-height:20px;margin:8px 0 0;
+  color:var(--danger);font-size:.8rem;font-weight:600;
+}
+.actions{display:grid;gap:8px;margin-top:10px}
+.btn{
+  height:52px;border:0;border-radius:16px;
+  font-size:.98rem;font-weight:800;cursor:pointer;
+  transition:transform .12s ease,opacity .12s ease;
+}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.6;cursor:default}
+.btn-main{background:var(--orange);color:#fff}
+.btn-danger{background:#fff;color:var(--danger);border:2px solid #f0c9c6}
+.btn-ghost{background:transparent;color:var(--muted);height:44px;font-weight:700}
+
+/* ---------- painel do professor ---------- */
+.link-admin{
+  display:block;margin:36px auto 0;
+  padding:10px 16px;
+  background:none;border:0;
+  color:var(--muted);font-size:.78rem;font-weight:600;
+  text-decoration:underline;cursor:pointer;
+}
+#dlg-admin .sheet{max-height:88vh;overflow-y:auto}
+.admin-block{margin-top:20px}
+.admin-block h4{
+  font-family:"Baloo 2",sans-serif;
+  font-size:1.05rem;margin:0 0 8px;
+}
+.row{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 0;border-bottom:1px solid var(--border);
+  font-size:.88rem;
+}
+.row:last-child{border-bottom:0}
+.row .nm{flex:1;font-weight:700}
+.tag{
+  font-size:.68rem;font-weight:700;
+  padding:3px 8px;border-radius:999px;
+  background:var(--green-light);color:var(--green);
+}
+.tag.vazio{background:#eef0ed;color:#777d77}
+.mini{
+  height:36px;padding:0 12px;
+  border:2px solid #f0c9c6;border-radius:12px;
+  background:#fff;color:var(--danger);
+  font-size:.78rem;font-weight:800;cursor:pointer;
+}
+.mini:disabled{opacity:.4;cursor:default}
+.row select{
+  height:36px;border:2px solid var(--border);border-radius:12px;
+  padding:0 8px;font-family:inherit;font-size:.82rem;font-weight:600;
+  background:#fafcfb;color:var(--text);
+}
+.btn-wide-danger{
+  width:100%;margin-top:12px;
+  height:46px;border-radius:14px;
+  border:2px solid #f0c9c6;background:#fff;color:var(--danger);
+  font-size:.86rem;font-weight:800;cursor:pointer;
+}
+
+/* ---------- aviso rápido ---------- */
+.toast{
+  position:fixed;left:50%;bottom:calc(24px + var(--safe-bottom));
+  transform:translate(-50%,20px);
+  background:var(--green);color:#fff;
+  padding:12px 18px;border-radius:14px;
+  font-size:.86rem;font-weight:600;
+  opacity:0;pointer-events:none;
+  transition:opacity .2s ease,transform .2s ease;
+  z-index:50;max-width:90%;text-align:center;
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media(prefers-reduced-motion:reduce){
+  *,dialog[open]{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="header-content">
+    <a class="back" href="index.html">← Hub da Sala</a>
+    <h1>Notebooks</h1>
+    <p>Escolha seu nome e confirme com a sua senha.</p>
+  </div>
+</header>
+
+<main>
+  <div class="aviso" id="aviso" hidden></div>
+
+  <h2>Quem vai pegar?</h2>
+  <p class="hint">Toque no seu nome. Nomes em verde já pediram hoje.</p>
+  <ul class="names" id="names"></ul>
+
+  <section class="today">
+    <div class="today-head">
+      <h2>Pedidos de hoje</h2>
+      <span id="count"></span>
+    </div>
+    <ol class="orders" id="orders"></ol>
+  </section>
+
+  <button class="link-admin" id="abrir-admin" type="button">Painel do professor</button>
+</main>
+
+<dialog id="dlg" aria-labelledby="dlg-title">
+  <div class="sheet">
+    <h3 id="dlg-title"></h3>
+    <p id="dlg-sub"></p>
+
+    <label for="senha" id="lbl-senha">Sua senha</label>
+    <input type="password" id="senha" autocomplete="off" inputmode="text" enterkeyhint="done">
+
+    <div id="bloco-confirma" hidden style="margin-top:12px">
+      <label for="senha2">Repita a senha</label>
+      <input type="password" id="senha2" autocomplete="off" inputmode="text" enterkeyhint="done">
+    </div>
+
+    <div class="error" id="erro" role="alert"></div>
+
+    <div class="actions">
+      <button class="btn btn-main" id="btn-ok" type="button"></button>
+      <button class="btn btn-danger" id="btn-cancelar" type="button" hidden>Cancelar meu pedido</button>
+      <button class="btn btn-ghost" id="btn-fechar" type="button">Fechar</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="dlg-admin" aria-labelledby="admin-title">
+  <div class="sheet">
+    <h3 id="admin-title">Painel do professor</h3>
+
+    <!-- entrada -->
+    <div id="admin-login">
+      <p>Digite a senha do professor para gerenciar senhas e pedidos.</p>
+      <label for="admin-senha">Senha do professor</label>
+      <input type="password" id="admin-senha" autocomplete="off" enterkeyhint="done">
+      <div class="error" id="admin-erro" role="alert"></div>
+      <div class="actions">
+        <button class="btn btn-main" id="admin-entrar" type="button">Entrar</button>
+        <button class="btn btn-ghost" data-fechar-admin type="button">Fechar</button>
+      </div>
+    </div>
+
+    <!-- painel -->
+    <div id="admin-painel" hidden>
+      <div class="admin-block">
+        <h4>Senhas dos alunos</h4>
+        <p class="hint">Resetar apaga a senha. O aluno cria uma nova no próximo acesso.</p>
+        <div id="admin-senhas"></div>
+        <button class="btn-wide-danger" id="admin-reset-todas" type="button">Resetar a senha de todos</button>
+      </div>
+
+      <div class="admin-block">
+        <h4>Pedidos de hoje</h4>
+        <div id="admin-pedidos"></div>
+      </div>
+
+      <div class="actions" style="margin-top:18px">
+        <button class="btn btn-ghost" data-fechar-admin type="button">Sair do painel</button>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+/* =====================================================
+   CONFIGURAÇÃO — cole aqui os dados do seu Supabase
+   (Project Settings > API > Project URL e anon public key)
+===================================================== */
+const SUPABASE_URL  = "COLE_AQUI_A_URL_DO_PROJETO";
+const SUPABASE_ANON = "COLE_AQUI_A_ANON_KEY";
+
+const NOMES = [
+  "Bernardo","Bruno","Bryan","Carlos","Davi","Enzo","Franciele","Gabriel",
+  "Giovanna","Guilherme","Gustavo","Hian","João","Luana","Lucas","Maria",
+  "Martha","Mateus Silva","Matheus Candido","Otávio","Pedro Costa",
+  "Pedro Freitas","Pedro Miguel","Pedro Penteado","Richard de Brito",
+  "Richard Miguel","Victoria","Yan"
+];
+
+const configurado = !SUPABASE_URL.startsWith("COLE");
+const $ = id => document.getElementById(id);
+
+let pedidos = [];           // [{id, nome, criado_em, status}]
+let semSenha = new Set();   // nomes que ainda não criaram senha
+let alvo = null;            // nome selecionado no momento
+let modo = "pedir";         // "criar" | "pedir" | "cancelar"
+let ocupado = false;
+let adminSenha = null;      // fica só na memória da página
+
+/* ---------- utilidades ---------- */
+function hoje(){
+  return new Date().toLocaleDateString("en-CA",{timeZone:"America/Sao_Paulo"});
+}
+function hora(iso){
+  return new Date(iso).toLocaleTimeString("pt-BR",{
+    hour:"2-digit",minute:"2-digit",timeZone:"America/Sao_Paulo"
+  });
+}
+function toast(msg){
+  const t = $("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toast.id);
+  toast.id = setTimeout(()=>t.classList.remove("show"),2600);
+}
+function mostrarAviso(msg){
+  const a = $("aviso");
+  a.textContent = msg;
+  a.hidden = !msg;
+}
+
+/* ---------- Supabase (fetch direto, sem biblioteca) ---------- */
+async function api(caminho, opcoes = {}){
+  const resp = await fetch(SUPABASE_URL + "/rest/v1/" + caminho, {
+    ...opcoes,
+    headers:{
+      apikey: SUPABASE_ANON,
+      Authorization: "Bearer " + SUPABASE_ANON,
+      "Content-Type": "application/json",
+      ...(opcoes.headers || {})
+    }
+  });
+  if(!resp.ok) throw new Error("HTTP " + resp.status);
+  return resp.json();
+}
+
+async function rpc(funcao, corpo){
+  return api("rpc/" + funcao,{method:"POST",body:JSON.stringify(corpo || {})});
+}
+
+async function carregar(){
+  if(!configurado){
+    mostrarAviso("Falta configurar o Supabase: preencha SUPABASE_URL e SUPABASE_ANON no início do script.");
+    return;
+  }
+  try{
+    const [ped, alunos] = await Promise.all([
+      api("notebook_pedidos?select=id,nome,criado_em,status&data=eq." + hoje() + "&order=criado_em.asc"),
+      rpc("alunos_status")
+    ]);
+    pedidos = ped;
+    semSenha = new Set(alunos.filter(a => !a.tem_senha).map(a => a.nome));
+    mostrarAviso("");
+  }catch(e){
+    mostrarAviso("Não consegui carregar os dados. Confira a conexão e as configurações do Supabase.");
+  }
+  desenhar();
+  desenharAdmin();
+}
+
+/* ---------- tela ---------- */
+function pedidoDe(nome){
+  return pedidos.find(p => p.nome === nome);
+}
+
+function desenhar(){
+  const ul = $("names");
+  ul.textContent = "";
+  NOMES.forEach(nome=>{
+    const p = pedidoDe(nome);
+    const li = document.createElement("li");
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "name-btn" + (p ? " pediu" : "");
+    b.textContent = nome;
+    if(p || semSenha.has(nome)){
+      const s = document.createElement("small");
+      s.textContent = p ? "Pediu às " + hora(p.criado_em) : "Criar senha";
+      b.appendChild(s);
+    }
+    b.addEventListener("click",()=>abrir(nome));
+    li.appendChild(b);
+    ul.appendChild(li);
+  });
+
+  const ol = $("orders");
+  ol.textContent = "";
+  $("count").textContent = pedidos.length
+    ? pedidos.length + (pedidos.length === 1 ? " pedido" : " pedidos")
+    : "";
+
+  if(!pedidos.length){
+    const e = document.createElement("li");
+    e.className = "empty";
+    e.textContent = "Ninguém pediu ainda. Toque no seu nome para ser o primeiro.";
+    ol.appendChild(e);
+    return;
+  }
+  pedidos.forEach((p,i)=>{
+    const li = document.createElement("li");
+    li.className = "order";
+    const pos = document.createElement("div");
+    pos.className = "pos"; pos.textContent = i + 1;
+    const who = document.createElement("div");
+    who.className = "who"; who.textContent = p.nome;
+    const when = document.createElement("div");
+    when.className = "when"; when.textContent = hora(p.criado_em);
+    li.append(pos,who,when);
+    if(p.status && p.status !== "pedido"){
+      const st = document.createElement("div");
+      st.className = "st"; st.textContent = p.status;
+      li.appendChild(st);
+    }
+    ol.appendChild(li);
+  });
+}
+
+/* ---------- confirmação por senha ---------- */
+function abrir(nome){
+  if(!configurado){
+    mostrarAviso("Falta configurar o Supabase: preencha SUPABASE_URL e SUPABASE_ANON no início do script.");
+    return;
+  }
+  alvo = nome;
+  const ja = !!pedidoDe(nome);
+  modo = semSenha.has(nome) ? "criar" : (ja ? "cancelar" : "pedir");
+
+  $("dlg-title").textContent = nome;
+  $("senha").value = "";
+  $("senha2").value = "";
+  $("erro").textContent = "";
+  $("bloco-confirma").hidden = modo !== "criar";
+  $("btn-ok").hidden = modo === "cancelar";
+  $("btn-cancelar").hidden = modo !== "cancelar";
+
+  if(modo === "criar"){
+    $("dlg-sub").textContent = "Primeiro acesso. Escolha uma senha com pelo menos 4 caracteres e guarde bem: só você deve saber.";
+    $("lbl-senha").textContent = "Escolha sua senha";
+    $("btn-ok").textContent = "Criar senha";
+  }else if(modo === "cancelar"){
+    $("dlg-sub").textContent = "Você já pediu um notebook hoje. Digite a senha se quiser cancelar.";
+    $("lbl-senha").textContent = "Sua senha";
+  }else{
+    $("dlg-sub").textContent = "Digite sua senha para pedir um notebook.";
+    $("lbl-senha").textContent = "Sua senha";
+    $("btn-ok").textContent = "Pedir notebook";
+  }
+  $("dlg").showModal();
+  $("senha").focus();
+}
+
+function fechar(){
+  $("dlg").close();
+  alvo = null;
+}
+
+function travar(sim){
+  ocupado = sim;
+  $("btn-ok").disabled = $("btn-cancelar").disabled = sim;
+}
+
+async function enviar(funcao, msgOk){
+  const senha = $("senha").value;
+  if(!senha){
+    $("erro").textContent = "Digite sua senha.";
+    $("senha").focus();
+    return;
+  }
+  if(ocupado) return;
+  travar(true);
+  $("erro").textContent = "";
+
+  try{
+    const r = await rpc(funcao,{p_nome:alvo,p_senha:senha});
+    if(r.ok){
+      const nome = alvo;
+      fechar();
+      toast(nome + ": " + msgOk);
+      await carregar();
+    }else if(r.motivo === "senha"){
+      $("erro").textContent = "Senha incorreta. Tente de novo.";
+      $("senha").select();
+    }else if(r.motivo === "ja_pediu"){
+      $("erro").textContent = "Você já pediu um notebook hoje.";
+      await carregar();
+    }else if(r.motivo === "sem_senha"){
+      await carregar();
+      abrir(alvo);
+    }else{
+      $("erro").textContent = "Não deu certo. Tente de novo.";
+    }
+  }catch(e){
+    $("erro").textContent = "Sem conexão com o servidor. Tente de novo.";
+  }finally{
+    travar(false);
+  }
+}
+
+async function criarSenha(){
+  const a = $("senha").value, b = $("senha2").value;
+  if(a.length < 4){
+    $("erro").textContent = "A senha precisa ter pelo menos 4 caracteres.";
+    $("senha").focus();
+    return;
+  }
+  if(a !== b){
+    $("erro").textContent = "As duas senhas são diferentes. Digite de novo.";
+    $("senha2").select();
+    return;
+  }
+  if(ocupado) return;
+  travar(true);
+  $("erro").textContent = "";
+
+  try{
+    const r = await rpc("criar_senha",{p_nome:alvo,p_senha:a});
+    if(r.ok){
+      const nome = alvo;
+      semSenha.delete(nome);
+      fechar();
+      await carregar();
+      toast("Senha criada. Agora peça seu notebook.");
+      abrir(nome);
+    }else if(r.motivo === "ja_tem"){
+      $("erro").textContent = "Esse nome já tem senha. Fale com o professor se precisar resetar.";
+      await carregar();
+    }else if(r.motivo === "curta"){
+      $("erro").textContent = "A senha precisa ter pelo menos 4 caracteres.";
+    }else{
+      $("erro").textContent = "Não deu certo. Tente de novo.";
+    }
+  }catch(e){
+    $("erro").textContent = "Sem conexão com o servidor. Tente de novo.";
+  }finally{
+    travar(false);
+  }
+}
+
+function acaoPrincipal(){
+  if(modo === "criar") criarSenha();
+  else if(modo === "cancelar") enviar("cancelar_notebook","pedido cancelado.");
+  else enviar("pedir_notebook","pedido registrado.");
+}
+
+$("btn-ok").addEventListener("click",acaoPrincipal);
+$("btn-cancelar").addEventListener("click",acaoPrincipal);
+$("btn-fechar").addEventListener("click",fechar);
+["senha","senha2"].forEach(id=>{
+  $(id).addEventListener("keydown",e=>{
+    if(e.key === "Enter") acaoPrincipal();
+  });
+});
+$("dlg").addEventListener("click",e=>{
+  if(e.target === $("dlg")) fechar();
+});
+
+/* ---------- painel do professor ---------- */
+function fecharAdmin(){
+  $("dlg-admin").close();
+  adminSenha = null;
+}
+
+$("abrir-admin").addEventListener("click",()=>{
+  if(!configurado){
+    mostrarAviso("Falta configurar o Supabase: preencha SUPABASE_URL e SUPABASE_ANON no início do script.");
+    return;
+  }
+  adminSenha = null;
+  $("admin-login").hidden = false;
+  $("admin-painel").hidden = true;
+  $("admin-senha").value = "";
+  $("admin-erro").textContent = "";
+  $("dlg-admin").showModal();
+  $("admin-senha").focus();
+});
+
+document.querySelectorAll("[data-fechar-admin]").forEach(b=>b.addEventListener("click",fecharAdmin));
+$("dlg-admin").addEventListener("click",e=>{
+  if(e.target === $("dlg-admin")) fecharAdmin();
+});
+
+async function entrarAdmin(){
+  const senha = $("admin-senha").value;
+  if(!senha){
+    $("admin-erro").textContent = "Digite a senha do professor.";
+    return;
+  }
+  $("admin-entrar").disabled = true;
+  $("admin-erro").textContent = "";
+  try{
+    const r = await rpc("admin_validar",{p_admin:senha});
+    if(r.ok){
+      adminSenha = senha;
+      $("admin-login").hidden = true;
+      $("admin-painel").hidden = false;
+      await carregar();
+      desenharAdmin();
+    }else{
+      $("admin-erro").textContent = "Senha do professor incorreta.";
+      $("admin-senha").select();
+    }
+  }catch(e){
+    $("admin-erro").textContent = "Sem conexão com o servidor. Tente de novo.";
+  }finally{
+    $("admin-entrar").disabled = false;
+  }
+}
+$("admin-entrar").addEventListener("click",entrarAdmin);
+$("admin-senha").addEventListener("keydown",e=>{
+  if(e.key === "Enter") entrarAdmin();
+});
+
+function desenharAdmin(){
+  if(adminSenha === null) return;
+
+  const box = $("admin-senhas");
+  box.textContent = "";
+  NOMES.forEach(nome=>{
+    const row = document.createElement("div");
+    row.className = "row";
+    const nm = document.createElement("span");
+    nm.className = "nm"; nm.textContent = nome;
+    const tem = !semSenha.has(nome);
+    const tag = document.createElement("span");
+    tag.className = "tag" + (tem ? "" : " vazio");
+    tag.textContent = tem ? "com senha" : "sem senha";
+    const btn = document.createElement("button");
+    btn.type = "button"; btn.className = "mini";
+    btn.textContent = "Resetar"; btn.disabled = !tem;
+    btn.addEventListener("click",()=>resetar(nome));
+    row.append(nm,tag,btn);
+    box.appendChild(row);
+  });
+
+  const pbox = $("admin-pedidos");
+  pbox.textContent = "";
+  if(!pedidos.length){
+    const e = document.createElement("div");
+    e.className = "empty"; e.textContent = "Nenhum pedido hoje.";
+    pbox.appendChild(e);
+    return;
+  }
+  pedidos.forEach(p=>{
+    const row = document.createElement("div");
+    row.className = "row";
+    const nm = document.createElement("span");
+    nm.className = "nm"; nm.textContent = p.nome + " · " + hora(p.criado_em);
+    const sel = document.createElement("select");
+    sel.setAttribute("aria-label","Situação do pedido de " + p.nome);
+    ["pedido","entregue","devolvido"].forEach(v=>{
+      const o = document.createElement("option");
+      o.value = v; o.textContent = v;
+      if(v === p.status) o.selected = true;
+      sel.appendChild(o);
+    });
+    sel.addEventListener("change",()=>mudarStatus(p.id,sel.value));
+    row.append(nm,sel);
+    pbox.appendChild(row);
+  });
+}
+
+async function comAdmin(funcao, corpo, msgOk){
+  try{
+    const r = await rpc(funcao,{p_admin:adminSenha,...corpo});
+    if(!r.ok){
+      toast("Senha do professor recusada. Entre de novo.");
+      fecharAdmin();
+      return;
+    }
+    toast(msgOk);
+    await carregar();
+    desenharAdmin();
+  }catch(e){
+    toast("Sem conexão com o servidor. Tente de novo.");
+  }
+}
+
+function resetar(nome){
+  if(!confirm("Resetar a senha de " + nome + "? Ele vai criar uma nova no próximo acesso.")) return;
+  comAdmin("admin_resetar_senha",{p_nome:nome},"Senha de " + nome + " resetada.");
+}
+$("admin-reset-todas").addEventListener("click",()=>{
+  if(!confirm("Resetar a senha de TODOS os alunos?")) return;
+  comAdmin("admin_resetar_todas",{},"Todas as senhas foram resetadas.");
+});
+function mudarStatus(id,status){
+  comAdmin("admin_status",{p_id:id,p_status:status},"Situação atualizada.");
+}
+
+/* ---------- início ---------- */
+desenhar();
+carregar();
+setInterval(carregar,20000);
+</script>
+</body>
+</html>
