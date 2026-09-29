@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -340,11 +341,10 @@ input[type=password]:focus{outline:none;border-color:var(--green)}
 
 <script>
 /* =====================================================
-   CONFIGURAÇÃO — cole aqui os dados do seu Supabase
-   (Project Settings > API > Project URL e anon public key)
+   CONFIGURAÇÃO — Supabase
 ===================================================== */
-const SUPABASE_URL  = "COLE_AQUI_A_URL_DO_PROJETO";
-const SUPABASE_ANON = "COLE_AQUI_A_ANON_KEY";
+const SUPABASE_URL  = "https://tjpvyusqotcxohcervts.supabase.co";
+const SUPABASE_ANON = "sb_publishable_5oxgs-qJIglf3XxYRQL2PQ_ZxoX_13F";
 
 const NOMES = [
   "Bernardo","Bruno","Bryan","Carlos","Davi","Enzo","Franciele","Gabriel",
@@ -386,7 +386,7 @@ function mostrarAviso(msg){
   a.hidden = !msg;
 }
 
-/* ---------- Supabase (fetch direto, sem biblioteca) ---------- */
+/* ---------- Supabase (fetch direto) ---------- */
 async function api(caminho, opcoes = {}){
   const resp = await fetch(SUPABASE_URL + "/rest/v1/" + caminho, {
     ...opcoes,
@@ -761,3 +761,5 @@ setInterval(carregar,20000);
 </script>
 </body>
 </html>
+
+```
